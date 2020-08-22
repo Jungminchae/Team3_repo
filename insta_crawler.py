@@ -3,6 +3,7 @@ from selenium.webdriver import Chrome
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.parse import quote_plus
+from selenium.webdriver.common.keys import Keys
 
 class Insta_img_crawler:
     def __init__(self, tag, driver_path):
@@ -17,7 +18,7 @@ class Insta_img_crawler:
     def page_down(self, page_down_num=1):
         body = self.driver.find_element_by_tag_name('body')
         while page_down_num > 0:
-            body[0].send_keys(Keys.PAGE_DOWN)
+            body.send_keys(Keys.PAGE_DOWN)
             time.sleep(1.5)
             page_down_num -=1
     def start_crawling(self):
@@ -30,7 +31,7 @@ class Insta_img_crawler:
             print('https://www.instagram.com'+ i.a['href'])
             imgUrl = i.select_one('.KL4Bh').img['src']
             with urlopen(imgUrl) as f:
-                with open('./img/' + plusUrl + str(n) + '.jpg', 'wb') as h:
+                with open('./img/' + self.tag + str(n) + '.jpg', 'wb') as h:
                     img = f.read()
                     h.write(img)
             n += 1
