@@ -1,0 +1,87 @@
+import tensorflow as tf 
+import numpy as np 
+from glob import glob
+from tqdm import tqdm
+import os 
+
+
+
+class DataListChecker:
+    '''
+    Data 목록 check
+    : food_dir_path => data들이 들어있는 디렉토리
+    '''
+    image_label = {}
+
+    def __init__(self, food_dir_path):
+        self.food_lst = os.listdir(food_dir_path)
+
+    def make_dict(self):
+        for idx, name  in enumerate(self.food_lst):
+            self.image_label[name] = idx
+        return self.image_label
+    
+    def __call__(self):
+        return self.make_dict()
+
+
+class FoodTFrecord:
+
+    def __init__(self, tfr_path, image_data_path, food_dir_path):
+        self.tfr_path = tfr_path
+        self.image_data_path = image_data_path
+        self.food_lst = os.listdir(food_dir_path)
+
+    def __len__(self):
+        return len(self.image_data_path)
+
+    @staticmethod
+    def _bytes_feature(value):
+        if isinstance(value, type(tf.constant(0))):
+            value = value.numpy() # BytesList won't unpack a string from an EagerTensor.
+        return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+    @staticmethod
+    def _float_feature(value):
+        return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
+
+    @staticmethod
+    def _int64_feature(value):
+        return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
+    def make_tfr(self):
+        image = DataListChecker(self.food_lst)
+        image_label = image()
+        _writer = tf.io.TFRecordWriter(self.tfr_path)
+
+        _n = 0
+        for path in tqdm(self.image_data_path):
+            image = open(path, 'rb').read()
+
+            class_name = path.split('/')[-2]
+            label = image_label[class_name]
+
+            feature = {
+                'image' : FoodTFrecord._bytes_feature(image),
+                'label' : FoodTFrecord._int64_feature(label),
+            }
+
+            example = tf.train.Example(features=tf.train.Feature(feature=feature))
+            _writer.write(example.SerializeToString())
+            _n += 1
+        _writer.close()
+        print(f'The number of file : {_n}')
+
+    def read_tfr(self):
+        raw_image_dataset = tf.data.TFRecordDataset(self.tfr_path)
+        image_feature_description = {
+            'image' : tf.io.FixedLenFeature([], tf.string),
+            'label' : tf.io.FixedLenFeature([], tf.int64)
+        }
+
+        def _parse_image_function(example_proto):
+            return tf.io.parse_single_example(example_proto, image_feature_description)
+
+        parsed_image_dataset = raw_image_dataset.map(_parse_image_function)
+        return parsed_image_dataset
+
