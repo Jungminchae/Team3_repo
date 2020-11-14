@@ -27,7 +27,7 @@ class DataListChecker(FoodDataPaths):
 class FoodTFrecord(FoodDataPaths):
 
     def __len__(self):
-        return len(self.image_data_path)
+        return len(glob(self.image_data_path))
 
     @staticmethod
     def _bytes_feature(value):
@@ -50,7 +50,7 @@ class FoodTFrecord(FoodDataPaths):
         print('TFRecord를 생성합니다...... \n 생성중 ......')
 
         _n = 0
-        for path in tqdm(self.image_data_path):
+        for path in tqdm(glob(self.image_data_path)):
             image = open(path, 'rb').read()
 
             class_name = path.split('/')[-2]
