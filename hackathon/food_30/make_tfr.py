@@ -44,7 +44,7 @@ class FoodTFrecord(FoodDataPaths):
         return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
     def make_tfr(self):
-        image = DataListChecker(self.food_dir_path)
+        image = DataListChecker()
         image_label = image()
         _writer = tf.io.TFRecordWriter(self.tfr_path)
         print('TFRecord를 생성합니다...... \n 생성중 ......')

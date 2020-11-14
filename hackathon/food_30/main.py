@@ -81,5 +81,4 @@ if __name__ =="__main__":
             steps_per_epoch=size / batch_size,
             callbacks=[es, mc],
             batch_size=batch_size,
-            shuffle=True
         )
