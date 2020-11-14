@@ -32,7 +32,7 @@ if __name__ =="__main__":
     args = parser.parse_args()
 
     # parameters 
-    mc_dir_path = args.models_save_dir
+    mc_dir_path = args.model_save_dir
     if mc_dir_path == './':
         raise NotADirectoryError("model 폴더에 저장하세요")
     tfr_path = args.tfr_path
@@ -51,7 +51,7 @@ if __name__ =="__main__":
         tfr_make.make_tfr()
     
     # model 학습
-    if args.mode == "train":
+    elif args.mode == "train":
         tfr_params = {
             'tft_path' : tfr_path, 'image_data_path': image_data_path, 'food_dir_path':food_dir_path
             }
