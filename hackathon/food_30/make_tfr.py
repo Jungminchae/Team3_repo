@@ -67,7 +67,7 @@ class FoodTFrecord:
                 'label' : FoodTFrecord._int64_feature(label),
             }
 
-            example = tf.train.Example(features=tf.train.Feature(feature=feature))
+            example = tf.train.Example(features=tf.train.Features(feature=feature))
             _writer.write(example.SerializeToString())
             _n += 1
         _writer.close()
