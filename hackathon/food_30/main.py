@@ -26,7 +26,7 @@ if __name__ =="__main__":
     parser.add_argument("--batch_size", type=int)
     parser.add_argument("--image_size", type=int)
     parser.add_argument("--label_num", type=int)
-    parser.add_argument("--valid_rate" ,type=float)
+    parser.add_argument("--train_valid_rate" ,nargs="+")
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--patience", type=int)
     args = parser.parse_args()
@@ -41,7 +41,8 @@ if __name__ =="__main__":
     batch_size = args.batch_size
     image_size = args.image_size
     label_num = args.label_num
-    epochs = args.epochs 
+    epochs = args.epochs
+    train_valid_rate = args.train_valid_rate
 
     # tfr 만들기
     if args.mode =='tfr':
@@ -54,9 +55,9 @@ if __name__ =="__main__":
         if mc_dir_path == './':
             raise NotADirectoryError("model 폴더에 저장하세요")
 
-        dataloader = FoodDataLoader_with_TFRecord(image_size, label_num, batch_size)
-        train = dataloader.food_tf_dataset()
         size = args.tfr_size
+        dataloader = FoodDataLoader_with_TFRecord(image_size, label_num, batch_size, train_valid_rate)
+        train, valid = dataloader.food_tf_dataset(size)
 
         model = Modelselect(model_name=args.model_name, image_size=image_size, class_num=label_num)
         model = model.model()
@@ -77,8 +78,8 @@ if __name__ =="__main__":
         history = model.fit(
             train,
             epochs=epochs,
-            validation_split= args.valid_rate,
-            steps_per_epoch=size / batch_size,
+            validation_data=valid,
+            steps_per_epoch= size / batch_size,
             callbacks=[es, mc],
             batch_size=batch_size,
         )
