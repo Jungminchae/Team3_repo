@@ -50,6 +50,8 @@ class FoodTFrecord:
         return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
     def make_tfr(self):
+        print("132131", self.food_lst)
+        print(type(self.food_lst))
         image = DataListChecker(self.food_lst)
         image_label = image()
         _writer = tf.io.TFRecordWriter(self.tfr_path)
