@@ -59,9 +59,10 @@ class FoodDataLoader_with_only_TFRecord(FoodDataLoader):
         self.parsed_image_dataset = self.raw_image_dataset.map(_parse_image_function)
         self.image_size = image_size
         self.label_num = label_num
-            
+
     def food_tf_dataset(self, train_valid_rate, size, batch_size):
 
+        print('1231333',train_valid_rate[0])
         train_size = int(train_valid_rate[0] * size)
         val_size = int(train_valid_rate[1] * size)
 
