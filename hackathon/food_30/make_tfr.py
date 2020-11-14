@@ -29,7 +29,7 @@ class FoodTFrecord:
 
     def __init__(self, tfr_path, image_data_path, food_dir_path):
         self.tfr_path = tfr_path
-        self.image_data_path = image_data_path
+        self.image_data_path = glob(image_data_path)
         self.food_lst = os.listdir(food_dir_path)
 
     def __len__(self):
@@ -53,6 +53,7 @@ class FoodTFrecord:
         image = DataListChecker(self.food_lst)
         image_label = image()
         _writer = tf.io.TFRecordWriter(self.tfr_path)
+        print('TFRecord를 생성합니다...... \n 생성중 ......')
 
         _n = 0
         for path in tqdm(self.image_data_path):
@@ -70,7 +71,8 @@ class FoodTFrecord:
             _writer.write(example.SerializeToString())
             _n += 1
         _writer.close()
-        print(f'The number of file : {_n}')
+        print(f'The number of file : {_n}개')
+        print(f"{self.tfr_path}에 TFRecord 생성")
 
     def read_tfr(self):
         raw_image_dataset = tf.data.TFRecordDataset(self.tfr_path)
