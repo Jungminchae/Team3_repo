@@ -57,7 +57,7 @@ class FoodDataLoader_with_only_TFRecord(FoodDataLoader):
         def _parse_image_function(example_proto):
             return tf.io.parse_single_example(example_proto, image_feature_description)
         self.parsed_image_dataset = self.raw_image_dataset.map(_parse_image_function)
-        super(FoodDataLoader_with_only_TFRecord, self).__init__(image_size=image_size, label_num=label_num)
+        super(FoodDataLoader_with_only_TFRecord, self).__init__(image_size=image_size, label_num=label_num, batch_size=10, train_valid_rate=[0.8,0.2])
     
     def food_tf_dataset(self, train_valid_rate, size, batch_size):
 

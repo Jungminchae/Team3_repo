@@ -42,9 +42,10 @@ if __name__ =="__main__":
     label_num = args.label_num
     epochs = args.epochs
     train_valid_rate = args.train_valid_rate
+    
+    print('123132',train_valid_rate)
+    print(type(train_valid_rate))
 
-    print(type(food_dir_path))
-    print("213131", food_dir_path)
     # tfr 만들기
     if args.mode =='tfr':
         tfr_make = FoodTFrecord(tfr_path,image_data_path,food_dir_path)
