@@ -30,7 +30,7 @@ class FoodTFrecord:
     def __init__(self, tfr_path, image_data_path, food_dir_path):
         self.tfr_path = tfr_path
         self.image_data_path = glob(image_data_path)
-        self.food_lst = os.listdir(food_dir_path)
+        self.food_dir_path = food_dir_path
 
     def __len__(self):
         return len(self.image_data_path)
@@ -50,9 +50,7 @@ class FoodTFrecord:
         return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
     def make_tfr(self):
-        print("132131", self.food_lst)
-        print(type(self.food_lst))
-        image = DataListChecker(self.food_lst)
+        image = DataListChecker(self.food_dir_path)
         image_label = image()
         _writer = tf.io.TFRecordWriter(self.tfr_path)
         print('TFRecord를 생성합니다...... \n 생성중 ......')
