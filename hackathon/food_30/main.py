@@ -33,7 +33,7 @@ if __name__ =="__main__":
 
     # path 입력
     food_paths = FoodDataPaths()
-    food_paths.make_img_food_path(args.img_data_path, args.food_dir_path)
+    food_paths.make_img_food_path(args.image_data_path, args.food_dir_path)
     food_paths.make_model_save_path(args.model_save_dir)
     food_paths.make_tfr_path(args.tfr_path)
 
