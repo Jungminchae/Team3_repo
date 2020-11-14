@@ -77,6 +77,9 @@ if __name__ =="__main__":
         es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.patience)
         mc = tf.keras.callbacks.ModelCheckpoint(
             filepath=mc_dir_path+'{epoch}-{val_loss:.2f}-{val_accuracy:.2f}.h5',
+            monitor='val_accuracy',
+            save_best_only=True,
+            verbose=1,
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(),
