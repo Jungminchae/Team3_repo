@@ -32,9 +32,7 @@ if __name__ =="__main__":
     args = parser.parse_args()
 
     # parameters 
-    mc_dir_path = args.model_save_dir
-    if mc_dir_path == './':
-        raise NotADirectoryError("model 폴더에 저장하세요")
+
     tfr_path = args.tfr_path
     image_data_path = args.image_data_path
     food_dir_path = args.food_dir_path
@@ -45,6 +43,8 @@ if __name__ =="__main__":
     epochs = args.epochs
     train_valid_rate = args.train_valid_rate
 
+    print(type(food_dir_path))
+    print("213131", food_dir_path)
     # tfr 만들기
     if args.mode =='tfr':
         tfr_make = FoodTFrecord(tfr_path,image_data_path,food_dir_path)
@@ -52,6 +52,10 @@ if __name__ =="__main__":
     
     # model 학습
     elif args.mode == "train":
+        mc_dir_path = args.model_save_dir
+        if mc_dir_path == './':
+            raise NotADirectoryError("model 폴더에 저장하세요")
+
         tfr_params = {
             'tft_path' : tfr_path, 'image_data_path': image_data_path, 'food_dir_path':food_dir_path
             }
