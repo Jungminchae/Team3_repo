@@ -1,23 +1,22 @@
 import tensorflow as tf 
 import numpy as np 
+from utils import FoodDataPaths
 from glob import glob
 from tqdm import tqdm
 import os 
 
 
 
-class DataListChecker:
+class DataListChecker(FoodDataPaths):
     '''
     Data 목록 check
     : food_dir_path => data들이 들어있는 디렉토리
     '''
     image_label = {}
-
-    def __init__(self, food_dir_path):
-        self.food_lst = os.listdir(food_dir_path)
-
+    
     def make_dict(self):
-        for idx, name  in enumerate(self.food_lst):
+        food_lst =os.listdir(self.food_dir_path)
+        for idx, name  in enumerate(food_lst):
             self.image_label[name] = idx
         return self.image_label
     
@@ -25,12 +24,7 @@ class DataListChecker:
         return self.make_dict()
 
 
-class FoodTFrecord:
-
-    def __init__(self, tfr_path, image_data_path, food_dir_path):
-        self.tfr_path = tfr_path
-        self.image_data_path = glob(image_data_path)
-        self.food_dir_path = food_dir_path
+class FoodTFrecord(FoodDataPaths):
 
     def __len__(self):
         return len(self.image_data_path)
