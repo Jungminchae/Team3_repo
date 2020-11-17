@@ -1,4 +1,8 @@
+import os
+from glob import glob
 import tensorflow as tf
+from utils import FoodDataPaths
+
 
 class Modelselect:
 
@@ -70,3 +74,44 @@ class Modelselect:
 
         print(model.summary())
         return model
+
+
+class ModelselectForTest(FoodDataPaths):
+    
+    models = {}
+
+    def __init__(self, model_num):
+        self.model_num = model_num
+
+    def _make_models_dirs(self):
+        return glob(os.path.join(self.models_dir, "*"))
+
+    def _make_model_list(self):
+        model_list = os.listdir(self.models_dir)
+        model_list = [ x for x in model_list if "ipynb" not in x]
+        model_list = list(map(lambda x : x.split('/')[-1].split('_')[0], model_lst))
+        return model_list
+
+    def _models_dict(self):
+        model_list = self._make_model_list()
+        for idx, m in enumerate(model_list):
+            self.models[idx] = m
+
+    def load_model(self):
+        model_name = self.models[self.model_num]
+        models_dirs = self._make_models_dirs
+        
+        for models_dir in models_dirs:
+            if model_name in models_dir:
+                target = models_dir
+
+        trained_models = glob(os.path.join(target, "*.h5"))
+        trained_models = sorted(trained_models, key=lambda x : os.path.basename(x).split('-')[-1], reverse=True)  # 정확도 기준, 내림차순 정렬
+        print('Model 불러오는 중...')
+        target_model = tf.keras.models.load_model(trained_models[0]) # 가장 정확도가 높은 모델을 load
+        print(f'불러온 모델의 경로 : {trained_models[0]}')
+        print('완료\n')
+
+        return target_model
+
+    

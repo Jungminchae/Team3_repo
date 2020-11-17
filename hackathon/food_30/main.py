@@ -17,9 +17,10 @@ def to_bool(x):
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=['tfr', 'train', 'test'], help="TFRecord 만들기 or 모델 학습 or 모델 테스트")
-    parser.add_argument("--food_dir_path", type=str, default='./', help="각 음식들의 폴더가 저장되어 있는 상위 폴더")
+    parser.add_argument("--food_dir_path", type=str, default='./', help="각 음식들의 폴더가 저장되어 있는 상위 디렉토리")
     parser.add_argument("--model_name", type=str, choices=["eb0","eb1","eb2","eb3","eb4","eb5","eb6","eb7","mv1","mv2","x","nasm","nasl", "d121"],default="eb0")
     parser.add_argument("--model_save_dir", type=str, default='./')
+    parser.add_argument("--models_dir", type=str, default='./', help="테스트를 위해 학습이 끝난 모델이 저장된 디렉토리")
     parser.add_argument("--tfr_path", type=str, default='./')
     parser.add_argument("--tfr_size", type=int)
     parser.add_argument("--image_data_path", type=str, default='./')
@@ -29,6 +30,7 @@ if __name__ =="__main__":
     parser.add_argument("--train_valid_rate" ,nargs="+")
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--patience", type=int)
+    
     args = parser.parse_args()
 
     # path 입력
@@ -36,6 +38,7 @@ if __name__ =="__main__":
     food_paths.make_img_food_path(args.image_data_path, args.food_dir_path)
     food_paths.make_model_save_path(args.model_save_dir)
     food_paths.make_tfr_path(args.tfr_path)
+    food_paths.make_models_dir(args.models_dir)
 
     # parameters 
     batch_size = args.batch_size
@@ -83,3 +86,5 @@ if __name__ =="__main__":
             callbacks=[es, mc],
             batch_size=batch_size,
         )
+    elif args.mode == "test":
+        pass
