@@ -18,7 +18,7 @@ if __name__ =="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=['tfr', 'train', 'test'], help="TFRecord 만들기 or 모델 학습 or 모델 테스트")
     parser.add_argument("--food_dir_path", type=str, default='./', help="각 음식들의 폴더가 저장되어 있는 상위 폴더")
-    parser.add_argument("--model_name", type=str, choices=["eb0","eb1","eb2","eb3","eb4","eb5","eb6","eb7","mv1","mv2","x","nasm","nasl"],default="eb0")
+    parser.add_argument("--model_name", type=str, choices=["eb0","eb1","eb2","eb3","eb4","eb5","eb6","eb7","mv1","mv2","x","nasm","nasl", "d121"],default="eb0")
     parser.add_argument("--model_save_dir", type=str, default='./')
     parser.add_argument("--tfr_path", type=str, default='./')
     parser.add_argument("--tfr_size", type=int)

@@ -28,7 +28,7 @@ class FoodDataLoader_with_TFRecord(FoodTFrecord):
         val_size = int(float(self.train_valid_rate[1]) * tfr_size)
 
         dataset = self.parsed_image_dataset
-        dataset = dataset.shuffle(50000)
+        dataset = dataset.shuffle(30000)
         # train
         train_ds = dataset.take(train_size)
         train_ds = train_ds.map(self._decode_img)

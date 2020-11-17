@@ -54,6 +54,8 @@ class Modelselect:
             base_model = tf.keras.applications.NASNetMobile(**model_parameters)
         elif self.model_name =='nasl':
             base_model = tf.keras.applications.NASNetLarge(**model_parameters)
+        elif self.model_name =='d121':
+            base_model = tf.keras.applications.DenseNet121(**model_parameters)
 
         flatten_layer = tf.keras.layers.GlobalAveragePooling2D()
         dense_layer = tf.keras.layers.Dense(512, activation='relu')
