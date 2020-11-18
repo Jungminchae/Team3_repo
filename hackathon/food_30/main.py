@@ -1,9 +1,10 @@
 import argparse
 import tensorflow as tf
-from models import Modelselect
+from models import Modelselect, ModelselectForTest
 from dataloader import FoodDataLoader_with_TFRecord
 from make_tfr import FoodTFrecord
 from utils import FoodDataPaths
+from prediction import Prediction
 
 def to_bool(x):
     if x.lower() in ['true','t']:
@@ -22,6 +23,7 @@ if __name__ =="__main__":
     parser.add_argument("--model_save_dir", type=str, default='./')
     parser.add_argument("--models_dir", type=str, default='./', help="테스트를 위해 학습이 끝난 모델이 저장된 디렉토리")
     parser.add_argument("--tfr_path", type=str, default='./')
+    parser.add_argument("--test_image_path", type=str, default='./')
     parser.add_argument("--tfr_size", type=int)
     parser.add_argument("--image_data_path", type=str, default='./')
     parser.add_argument("--batch_size", type=int)
@@ -30,6 +32,8 @@ if __name__ =="__main__":
     parser.add_argument("--train_valid_rate" ,nargs="+")
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--patience", type=int)
+    parser.add_argument("--test_model_num", type=int)
+    parser.add_argument("--test_size", type=int)
     
     args = parser.parse_args()
 
@@ -39,6 +43,7 @@ if __name__ =="__main__":
     food_paths.make_model_save_path(args.model_save_dir)
     food_paths.make_tfr_path(args.tfr_path)
     food_paths.make_models_dir(args.models_dir)
+    food_paths.make_test_image_path(args.test_image_path)
 
     # parameters 
     batch_size = args.batch_size
@@ -87,4 +92,10 @@ if __name__ =="__main__":
             batch_size=batch_size,
         )
     elif args.mode == "test":
-        pass
+        model_instance = ModelselectForTest(args.test_model_num)
+        model = model_instance.load_model()
+
+        pred = Prediction()
+        
+        # model test
+        pred.predict_test(model, image_size, args.test_size)

@@ -99,7 +99,7 @@ class ModelselectForTest(FoodDataPaths):
 
     def load_model(self):
         model_name = self.models[self.model_num]
-        models_dirs = self._make_models_dirs
+        models_dirs = self._make_models_dirs()
         
         for models_dir in models_dirs:
             if model_name in models_dir:
