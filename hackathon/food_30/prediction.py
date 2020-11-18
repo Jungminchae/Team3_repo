@@ -24,8 +24,8 @@ class Prediction(FoodDataPaths):
             img = img[np.newaxis, :, :]
             pred = int(np.argmax(model.predict(img)))
 
-        if pred == label:
-            correct += 1
+            if pred == label:
+                correct += 1
 
         print(f'정확도 : {round(correct / len(img_paths), 4) * 100}%')
 
