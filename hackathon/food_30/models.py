@@ -89,7 +89,7 @@ class ModelselectForTest(FoodDataPaths):
     def _make_model_list(self):
         model_list = os.listdir(self.models_dir)
         model_list = [ x for x in model_list if "ipynb" not in x]
-        model_list = list(map(lambda x : x.split('/')[-1].split('_')[0], model_lst))
+        model_list = list(map(lambda x : x.split('/')[-1].split('_')[0], model_list))
         return model_list
 
     def _models_dict(self):
