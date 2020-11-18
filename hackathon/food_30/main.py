@@ -19,7 +19,7 @@ if __name__ =="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=['tfr', 'train', 'test'], help="TFRecord 만들기 or 모델 학습 or 모델 테스트")
     parser.add_argument("--food_dir_path", type=str, default='./', help="각 음식들의 폴더가 저장되어 있는 상위 디렉토리")
-    parser.add_argument("--model_name", type=str, choices=["eb0","eb1","eb2","eb3","eb4","eb5","eb6","eb7","mv1","mv2","x","nasm","nasl", "d121"],default="eb0")
+    parser.add_argument("--model_name", type=str, choices=["eb0","eb1","eb2","eb3","eb4","eb5","eb6","eb7","mv1","mv2","x","nasm","nasl", "d121", "res50"],default="eb0")
     parser.add_argument("--model_save_dir", type=str, default='./')
     parser.add_argument("--models_dir", type=str, default='./', help="테스트를 위해 학습이 끝난 모델이 저장된 디렉토리")
     parser.add_argument("--tfr_path", type=str, default='./')
@@ -34,6 +34,7 @@ if __name__ =="__main__":
     parser.add_argument("--patience", type=int)
     parser.add_argument("--test_model_num", type=int)
     parser.add_argument("--test_size", type=int)
+    parser.add_argument("--test_model_check", type=to_bool, default='false')
     
     args = parser.parse_args()
 
@@ -52,50 +53,55 @@ if __name__ =="__main__":
     epochs = args.epochs
     train_valid_rate = args.train_valid_rate
 
-    # tfr 만들기
-    if args.mode =='tfr':
-        tfr_make = FoodTFrecord()
-        tfr_make.make_tfr()
-    
-    # model 학습
-    elif args.mode == "train":
-        mc_dir_path = food_paths.model_save_path
-        if mc_dir_path == './':
-            raise NotADirectoryError("model 폴더에 저장하세요")
 
-        size = args.tfr_size
-        dataloader = FoodDataLoader_with_TFRecord(image_size, label_num, batch_size, train_valid_rate)
-        train, valid = dataloader.food_tf_dataset(size)
-
-        model = Modelselect(model_name=args.model_name, image_size=image_size, class_num=label_num)
-        model = model.model()
-
-        es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.patience)
-        mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=mc_dir_path+'{epoch}-{val_loss:.2f}-{val_accuracy:.2f}.h5',
-            monitor='val_accuracy',
-            save_best_only=True,
-            verbose=1,
-        )
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(),
-            loss = tf.keras.losses.CategoricalCrossentropy(),
-            metrics=['accuracy']
-        )
-
-        history = model.fit(
-            train,
-            epochs=epochs,
-            validation_data=valid,
-            steps_per_epoch= size / batch_size,
-            callbacks=[es, mc],
-            batch_size=batch_size,
-        )
-    elif args.mode == "test":
-        model_instance = ModelselectForTest(args.test_model_num)
-        model = model_instance.load_model()
-
-        pred = Prediction()
+    if args.test_model_check:
+         model_list = ModelselectForTest()
+         print(model_list)
+    else:
+        # tfr 만들기
+        if args.mode =='tfr':
+            tfr_make = FoodTFrecord()
+            tfr_make.make_tfr()
         
-        # model test
-        pred.predict_test(model, image_size, args.test_size)
+        # model 학습
+        elif args.mode == "train":
+            mc_dir_path = food_paths.model_save_path
+            if mc_dir_path == './':
+                raise NotADirectoryError("model 폴더에 저장하세요")
+
+            size = args.tfr_size
+            dataloader = FoodDataLoader_with_TFRecord(image_size, label_num, batch_size, train_valid_rate)
+            train, valid = dataloader.food_tf_dataset(size)
+
+            model = Modelselect(model_name=args.model_name, image_size=image_size, class_num=label_num)
+            model = model.model()
+
+            es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.patience)
+            mc = tf.keras.callbacks.ModelCheckpoint(
+                filepath=mc_dir_path+'{epoch}-{val_loss:.2f}-{val_accuracy:.2f}.h5',
+                monitor='val_accuracy',
+                save_best_only=True,
+                verbose=1,
+            )
+            model.compile(
+                optimizer=tf.keras.optimizers.Adam(),
+                loss = tf.keras.losses.CategoricalCrossentropy(),
+                metrics=['accuracy']
+            )
+
+            history = model.fit(
+                train,
+                epochs=epochs,
+                validation_data=valid,
+                steps_per_epoch= size / batch_size,
+                callbacks=[es, mc],
+                batch_size=batch_size,
+            )
+        elif args.mode == "test":
+            model_instance = ModelselectForTest(args.test_model_num)
+            model = model_instance.load_model()
+
+            pred = Prediction()
+            
+            # model test
+            pred.predict_test(model, image_size, args.test_size)

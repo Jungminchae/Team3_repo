@@ -60,8 +60,11 @@ class Modelselect:
             base_model = tf.keras.applications.NASNetLarge(**model_parameters)
         elif self.model_name =='d121':
             base_model = tf.keras.applications.DenseNet121(**model_parameters)
+        elif self.model_name == 'res50':
+            base_model = tf.keras.applications.ResNet50(**model_parameters)
 
-        flatten_layer = tf.keras.layers.GlobalAveragePooling2D()
+
+        flatten_layer = tf.keras.layers.Flatten()
         dense_layer = tf.keras.layers.Dense(512, activation='relu')
         prediction_layer = tf.keras.layers.Dense(self.class_num)
 
@@ -80,8 +83,12 @@ class ModelselectForTest(FoodDataPaths):
     
     models = {}
 
-    def __init__(self, model_num):
+    def __init__(self, model_num = 5):
         self.model_num = model_num
+
+    def __str__(self):
+        self._models_dict()
+        return str(self.models)
 
     def _make_models_dirs(self):
         return glob(os.path.join(self.models_dir, "*"))
