@@ -98,6 +98,7 @@ class ModelselectForTest(FoodDataPaths):
             self.models[idx] = m
 
     def load_model(self):
+        self._models_dict()
         model_name = self.models[self.model_num]
         models_dirs = self._make_models_dirs()
         
