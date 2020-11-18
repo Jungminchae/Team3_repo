@@ -33,7 +33,7 @@ if __name__ =="__main__":
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--patience", type=int)
     parser.add_argument("--test_model_num", type=int)
-    parser.add_argument("--test_size", type=int)
+    parser.add_argument("--test_size", type=int, default=0)
     parser.add_argument("--test_model_check", type=to_bool, default='false')
     
     args = parser.parse_args()
@@ -103,5 +103,6 @@ if __name__ =="__main__":
 
             pred = Prediction()
             
+            test_size = args.test_size
             # model test
-            pred.predict_test(model, image_size, args.test_size)
+            pred.predict_test(model, image_size, test_size)

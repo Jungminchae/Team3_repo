@@ -14,10 +14,13 @@ class Prediction(FoodDataPaths):
         label = int(path.split('/')[-2].split('_')[-1])
         return img, label
 
-    def predict_test(self, model, img_size, nums):
+    def predict_test(self, model, img_size, nums=0):
         test_image_path = glob(self.test_image_path)
         correct = 0
-        img_paths = np.random.choice(test_image_path, nums, replace=False)
+        if nums == 0:
+            img_paths = test_image_path
+        else:
+            img_paths = np.random.choice(test_image_path, nums, replace=False)
 
         for img_path in tqdm(img_paths):
             img, label = self._load_image(img_path, img_size)
