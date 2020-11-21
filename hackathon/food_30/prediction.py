@@ -4,6 +4,8 @@ import numpy as np
 from glob import glob
 from utils import FoodDataPaths
 
+np.random.seed(123)
+
 class Prediction(FoodDataPaths):
 
     def _load_image(self, path, img_size) :

@@ -1,6 +1,7 @@
 import tensorflow as tf 
 from make_tfr import FoodTFrecord
-        
+
+tf.random.set_seed(123)
 
 class FoodDataLoader_with_TFRecord(FoodTFrecord):
 

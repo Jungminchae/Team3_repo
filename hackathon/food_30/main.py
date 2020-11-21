@@ -1,10 +1,13 @@
 import argparse
+import math
 import tensorflow as tf
 from models import Modelselect, ModelselectForTest
 from dataloader import FoodDataLoader_with_TFRecord
 from make_tfr import FoodTFrecord
-from utils import FoodDataPaths
+from utils import FoodDataPaths,CosineAnnealingScheduler
 from prediction import Prediction
+
+tf.random.set_seed(123)
 
 def to_bool(x):
     if x.lower() in ['true','t']:
@@ -76,6 +79,8 @@ if __name__ =="__main__":
             model = Modelselect(model_name=args.model_name, image_size=image_size, class_num=label_num)
             model = model.model()
 
+            steps = math.floor(size/batch_size)
+            cos = CosineAnnealingScheduler(T_max=steps, eta_max=6e-4, eta_min=3e-5)
             es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.patience)
             mc = tf.keras.callbacks.ModelCheckpoint(
                 filepath=mc_dir_path+'{epoch}-{val_loss:.2f}-{val_accuracy:.2f}.h5',
@@ -94,7 +99,7 @@ if __name__ =="__main__":
                 epochs=epochs,
                 validation_data=valid,
                 steps_per_epoch= size / batch_size,
-                callbacks=[es, mc],
+                callbacks=[es, mc, cos],
                 batch_size=batch_size,
             )
         elif args.mode == "test":
