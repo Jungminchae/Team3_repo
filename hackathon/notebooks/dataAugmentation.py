@@ -80,7 +80,7 @@ class DataPreprocessing():
     # 최종적으로 데이터의 shape을 정의해준다.
     def set_shapes(self, img, label, img_shape):
         img.set_shape(img_shape)
-        label = tf.one_hot(label, 25)
+        label = tf.one_hot(label, 30)
         return img, label
     
     def view_image(self, ds):
