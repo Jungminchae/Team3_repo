@@ -6,17 +6,17 @@ import tensorflow_datasets as tfds
 from functools import partial
 from albumentations import (
     Compose, RandomBrightness, JpegCompression, HueSaturationValue, RandomContrast, HorizontalFlip,
-    Rotate
+    Rotate, RandomCrop, ShiftScaleRotate, VerticalFlip
 )
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 transforms = Compose([
             Rotate(limit=60),
+            ShiftScaleRotate(),
             RandomBrightness(limit=0.2),
-            JpegCompression(quality_lower=85, quality_upper=100, p=0.5),
-            HueSaturationValue(hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, p=0.5),
             RandomContrast(limit=0.2, p=0.5),
-            HorizontalFlip(),
+            HorizontalFlip(p=0.5),
+            VerticalFlip()
         ])
 
 class DataPreprocessing():
