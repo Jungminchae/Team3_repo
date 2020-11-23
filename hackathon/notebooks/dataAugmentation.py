@@ -56,7 +56,7 @@ class DataPreprocessing():
         ds_alb = ds_alb.shuffle(self.buffer_size)
         ds_alb = ds_alb.repeat()
         ds_alb = ds_alb.batch(self.batch_size)
-        ds_alb = ds_alb.prefetch(self.AUTOTUNE)
+        #ds_alb = ds_alb.prefetch(self.AUTOTUNE)
         return ds_alb
     
     # Augmentation을 적용시키는 함수이다.
