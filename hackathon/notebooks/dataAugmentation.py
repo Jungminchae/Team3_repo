@@ -52,7 +52,11 @@ class DataPreprocessing():
     def data_alb(self):
         temp = self._parsed_image_dataset()
         ds_alb = temp.map(partial(self.process_data, image_size=self.image_size), num_parallel_calls=self.AUTOTUNE).prefetch(self.AUTOTUNE)
-        ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE).shuffle(self.buffer_size).batch(self.batch_size).prefetch(self.AUTOTUNE)
+        ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE)
+        ds_alb = ds_alb.shuffle(self.buffer_size)
+        ds_alb = ds_alb.repeat()
+        ds_alb = ds_alb.batch(self.batch_size)
+        ds_alb = ds_alb.prefetch(self.AUTOTUNE)
         return ds_alb
     
     # Augmentation을 적용시키는 함수이다.
