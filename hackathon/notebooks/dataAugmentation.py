@@ -23,11 +23,12 @@ class DataPreprocessing():
     
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    def __init__(self, tfr_filepath, image_size, batch_size, buffer_size):
+    def __init__(self, tfr_filepath, image_size, batch_size, buffer_size, dataset_size):
         self.image_size = image_size
         self.batch_size = batch_size
         self.buffer_size = buffer_size
         self.image_shape = (image_size, image_size, 3)
+        self.dataset_size = dataset_size
         
         # tfr파일 경로를 받아온다. 
         self.tfr_filepath = tfr_filepath
@@ -49,10 +50,21 @@ class DataPreprocessing():
         paresd_img_data = self.raw_image_dataset.map(self._parse_image_function)
         return paresd_img_data
     
-    def data_alb(self):
-        temp = self._parsed_image_dataset()
-        temp = temp.shuffle(self.buffer_size)
-        ds_alb = temp.map(partial(self.process_data, image_size=self.image_size), num_parallel_calls=self.AUTOTUNE)
+    def train_valid_split(self):
+        train_size = int(0.8 * self.dataset_size)
+        val_size = int(0.2 * self.dataset_size)
+    
+        dataset = self._parsed_image_dataset()
+        dataset = dataset.shuffle(self.buffer_size)
+        
+        train_ds = dataset.take(train_size)
+        valid_ds = dataset.skip(train_size)
+        valid_ds = dataset.take(val_size)
+        
+        return train_ds, valid_ds
+    
+    def data_alb(self, dataset, is_train):
+        ds_alb = dataset.map(partial(self.process_data, image_size=self.image_size, is_train=is_train), num_parallel_calls=self.AUTOTUNE)
         ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE)
         ds_alb = ds_alb.repeat()
         ds_alb = ds_alb.batch(self.batch_size)
@@ -60,22 +72,27 @@ class DataPreprocessing():
         return ds_alb
     
     # Augmentation을 적용시키는 함수이다.
-    def aug_fn(self, image, img_size):
-        data = {"image":image}
-        aug_data = transforms(**data)
-        aug_img = aug_data["image"]
-        aug_img = tf.cast(aug_img/255.0, tf.float32)
-        aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
+    def aug_fn(self, image, img_size, is_train):
+        if is_train:
+            data = {"image":image}
+            aug_data = transforms(**data)
+            aug_img = aug_data["image"]
+            aug_img = tf.cast(aug_img/255.0, tf.float32)
+            aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
+        else:
+            aug_img = tf.cast(image/255.0, tf.float32)
+            aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
         return aug_img
 
     # tfr에 담겨있는 img, label을 받아와서 img만 aug_fn함수에 전달한 후
     # aug_img, label을 다시 반환하여 데이터쌍을 유지한다.
-    def process_data(self, data, image_size):
+    def process_data(self, data, image_size, is_train=True):
         image = data["image"]
         label = data["label"]
         image = tf.image.decode_image(image, channels=3, expand_animations=False)
-        aug_img = tf.numpy_function(func=self.aug_fn, inp=[image, image_size], Tout=tf.float32)
-        return aug_img, label
+        image = tf.numpy_function(func=self.aug_fn, inp=[image, image_size, is_train], Tout=tf.float32)
+    
+        return image, label
     
     # 최종적으로 데이터의 shape을 정의해준다.
     def set_shapes(self, img, label, img_shape):
@@ -95,8 +112,11 @@ class DataPreprocessing():
             ax.set_title(f"Label: {tf.argmax(label[i])}")
             
     def __call__(self):
-        return self.data_alb()
+        train, valid = self.train_valid_split()
+        train = self.data_alb(train, is_train = True)
+        valid = self.data_alb(valid, is_train = False)
+        return train, valid
 
 #tfr_filepath = os.path.join(os.getenv("HOME"),"data/food/food_data.tfr")
-#dp_new = DataPreprocessing(tfr_filepath,image_size=224, batch_size=32, buffer_size=300)
-
+#dp_new = DataPreprocessing(tfr_filepath,image_size=224, batch_size=32, buffer_size=30000, dataset_size=29837)
+#train, valid = dp_new()
