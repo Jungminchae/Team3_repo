@@ -77,7 +77,7 @@ class DataPreprocessing():
         data = {"image":image}
         aug_data = transforms(**data)
         aug_img = aug_data["image"]
-        aug_img = tf.cast(aug_img/255.0, tf.float32)
+        #aug_img = tf.cast(aug_img/255.0, tf.float32)
         aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
         return aug_img
 
@@ -105,8 +105,10 @@ class DataPreprocessing():
     
     def view_image(self, ds):
         image, label = next(iter(ds)) # extract 1 batch from the dataset
-        #image = image.numpy()
-        #label = label.numpy()
+        image = image.numpy()
+        label = label.numpy()
+        
+        image = image/255.0
 
         fig = plt.figure(figsize=(22, 22))
         for i in range(20):
@@ -119,7 +121,7 @@ class DataPreprocessing():
         label = _valid['label']
 
         image = tf.image.decode_image(image, channels=3, expand_animations = False)
-        image = tf.cast(image/255, dtype=tf.float32)
+        #image = tf.cast(image/255, dtype=tf.float32)
         image = tf.image.resize(image, (224, 224))
 
         label = tf.one_hot(label, 30)
