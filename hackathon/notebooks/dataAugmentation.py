@@ -15,10 +15,8 @@ transforms = Compose([
             RandomSizedCrop(min_max_height=(195, 220), height=224, width=224, p=0.5),
             Rotate(limit=60, p=0.3),
             HorizontalFlip(p=0.3),
+    
         ])
-transforms_val = Compose([
-    Resize(224,224)
-])
 
 class DataPreprocessing():
     
@@ -66,26 +64,21 @@ class DataPreprocessing():
     
     def data_alb(self, dataset, is_train):
         ds_alb = dataset.map(partial(self.process_data, image_size=self.image_size, is_train=is_train), num_parallel_calls=self.AUTOTUNE)
-        ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE)
-        ds_alb = ds_alb.repeat()
+        if is_train:
+            ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE)
+            ds_alb = ds_alb.repeat()
+            
         ds_alb = ds_alb.batch(self.batch_size)
         ds_alb = ds_alb.prefetch(self.AUTOTUNE)
         return ds_alb
     
     # Augmentation을 적용시키는 함수이다.
-    def aug_fn(self, image, img_size, is_train):
+    def aug_fn(self, image, img_size):
         data = {"image":image}
-        
-        if is_train:
-            aug_data = transforms(**data)
-            aug_img = aug_data["image"]
-            aug_img = tf.cast(aug_img/255.0, tf.float32)
-            aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
-        else:
-            aug_data = transforms_val(**data)
-            aug_img = aug_data["image"]
-            aug_img = tf.cast(aug_img/255.0, tf.float32)
-            aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
+        aug_data = transforms(**data)
+        aug_img = aug_data["image"]
+        aug_img = tf.cast(aug_img/255.0, tf.float32)
+        aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
         return aug_img
 
     # tfr에 담겨있는 img, label을 받아와서 img만 aug_fn함수에 전달한 후
@@ -94,14 +87,17 @@ class DataPreprocessing():
         image = data["image"]
         label = data["label"]
         image = tf.image.decode_image(image, channels=3, expand_animations=False)
-        image = tf.numpy_function(func=self.aug_fn, inp=[image, image_size, is_train], Tout=tf.float32)
-    
+        if is_train:
+            image = tf.numpy_function(func=self.aug_fn, inp=[image, image_size], Tout=tf.float32)
+        else:
+            image = tf.image.resize(image, (224, 224))
+            
+        label = tf.one_hot(label, 30)
         return image, label
     
     # 최종적으로 데이터의 shape을 정의해준다.
     def set_shapes(self, img, label, img_shape):
         img.set_shape(img_shape)
-        label = tf.one_hot(label, 30)
         return img, label
     
     def view_image(self, ds):
