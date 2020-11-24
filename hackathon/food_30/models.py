@@ -109,9 +109,11 @@ class ModelselectForTest(FoodDataPaths):
         model_name = self.models[self.model_num]
         models_dirs = self._make_models_dirs()
         
-        for models_dir in models_dirs:
-            if model_name in models_dir:
-                target = models_dir
+        for model_dir in models_dirs:
+            check_dir = os.path.join(self.models_dir, model_name+'_checkpoint')
+            if model_name in model_dir:
+                target = model_dir
+                break
 
         trained_models = glob(os.path.join(target, "*-*-*.h5"))
         trained_models = sorted(trained_models, key=lambda x : os.path.basename(x).split('-')[-1], reverse=True)  # 정확도 기준, 내림차순 정렬
