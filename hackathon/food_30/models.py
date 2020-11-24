@@ -111,8 +111,8 @@ class ModelselectForTest(FoodDataPaths):
         
         for model_dir in models_dirs:
             check_dir = os.path.join(self.models_dir, model_name+'_checkpoint')
-            if model_name in model_dir:
-                target = model_dir
+            if check_dir == model_dir:
+                target = check_dir
                 break
 
         trained_models = glob(os.path.join(target, "*-*-*.h5"))
