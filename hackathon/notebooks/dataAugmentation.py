@@ -5,18 +5,15 @@ import matplotlib.pyplot as plt
 import tensorflow_datasets as tfds
 from functools import partial
 from albumentations import (
-    Compose, RandomBrightness, JpegCompression, HueSaturationValue, RandomContrast, HorizontalFlip,
-    Rotate, RandomCrop, ShiftScaleRotate, VerticalFlip
+    Compose, HorizontalFlip, Rotate, ShiftScaleRotate, VerticalFlip,
+    RandomResizedCrop, CenterCrop
 )
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 transforms = Compose([
-            Rotate(limit=60),
-            ShiftScaleRotate(),
-            RandomBrightness(limit=0.2),
-            RandomContrast(limit=0.2, p=0.5),
-            HorizontalFlip(p=0.5),
-            VerticalFlip()
+            RandomResizedCrop(224,224, scale=(0.8, 1), p=0.3),
+            Rotate(limit=60, p=0.3),
+            HorizontalFlip(p=0.3),
         ])
 
 class DataPreprocessing():
