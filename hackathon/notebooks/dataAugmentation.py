@@ -11,7 +11,7 @@ from albumentations import (
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 transforms = Compose([
-            Resize = (224,224),
+            Resize(224,224),
             RandomSizedCrop(min_max_height=(195, 220), height=224, width=224, p=0.5),
             Rotate(limit=60, p=0.3),
             HorizontalFlip(p=0.3),
