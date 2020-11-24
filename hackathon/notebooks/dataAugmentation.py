@@ -13,9 +13,8 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 transforms = Compose([
             Resize(224,224),
             RandomSizedCrop(min_max_height=(195, 220), height=224, width=224, p=0.5),
-            Rotate(limit=60, p=0.3),
-            HorizontalFlip(p=0.3),
-    
+            Rotate(limit=60, p=0.5),
+            HorizontalFlip(p=0.5),
         ])
 
 class DataPreprocessing():
@@ -65,9 +64,10 @@ class DataPreprocessing():
     def data_alb(self, dataset, is_train):
         ds_alb = dataset.map(partial(self.process_data, image_size=self.image_size, is_train=is_train), num_parallel_calls=self.AUTOTUNE)
         if is_train:
+            print(f"{is_train} in data_alb func")
             ds_alb = ds_alb.map(partial(self.set_shapes, img_shape=self.image_shape), num_parallel_calls=self.AUTOTUNE)
             ds_alb = ds_alb.repeat()
-            
+           
         ds_alb = ds_alb.batch(self.batch_size)
         ds_alb = ds_alb.prefetch(self.AUTOTUNE)
         return ds_alb
@@ -87,9 +87,12 @@ class DataPreprocessing():
         image = data["image"]
         label = data["label"]
         image = tf.image.decode_image(image, channels=3, expand_animations=False)
+        
         if is_train:
             image = tf.numpy_function(func=self.aug_fn, inp=[image, image_size], Tout=tf.float32)
+            
         else:
+            print(f"process_data else {is_train}")
             image = tf.image.resize(image, (224, 224))
             
         label = tf.one_hot(label, 30)
@@ -102,8 +105,8 @@ class DataPreprocessing():
     
     def view_image(self, ds):
         image, label = next(iter(ds)) # extract 1 batch from the dataset
-        image = image.numpy()
-        label = label.numpy()
+        #image = image.numpy()
+        #label = label.numpy()
 
         fig = plt.figure(figsize=(22, 22))
         for i in range(20):
@@ -111,12 +114,21 @@ class DataPreprocessing():
             ax.imshow(image[i])
             ax.set_title(f"Label: {tf.argmax(label[i])}")
             
+    def decode_img(self, _valid):
+        image = _valid['image']
+        label = _valid['label']
+
+        image = tf.image.decode_image(image, channels=3, expand_animations = False)
+        image = tf.cast(image/255, dtype=tf.float32)
+        image = tf.image.resize(image, (224, 224))
+
+        label = tf.one_hot(label, 30)
+
+        return image, label
+    
     def __call__(self):
         train, valid = self.train_valid_split()
         train = self.data_alb(train, is_train = True)
-        valid = self.data_alb(valid, is_train = False)
+        valid = valid.map(self.decode_img).batch(self.batch_size)
+        
         return train, valid
-
-#tfr_filepath = os.path.join(os.getenv("HOME"),"data/food/food_data.tfr")
-#dp_new = DataPreprocessing(tfr_filepath,image_size=224, batch_size=32, buffer_size=30000, dataset_size=29837)
-#train, valid = dp_new()
