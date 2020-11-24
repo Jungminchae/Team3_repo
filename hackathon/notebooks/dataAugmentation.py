@@ -6,12 +6,12 @@ import tensorflow_datasets as tfds
 from functools import partial
 from albumentations import (
     Compose, HorizontalFlip, Rotate, ShiftScaleRotate, VerticalFlip,
-    RandomResizedCrop, CenterCrop
+    RandomSizedCrop, CenterCrop
 )
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 transforms = Compose([
-            RandomResizedCrop(224,224, scale=(0.8, 1), p=0.3),
+            RandomSizedCrop(min_max_height=(195, 220), height=224, width=224, p=0.5),
             Rotate(limit=60, p=0.3),
             HorizontalFlip(p=0.3),
         ])
