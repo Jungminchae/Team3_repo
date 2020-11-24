@@ -16,6 +16,9 @@ transforms = Compose([
             Rotate(limit=60, p=0.3),
             HorizontalFlip(p=0.3),
         ])
+transforms_val = Compose([
+    Resize(224,224)
+])
 
 class DataPreprocessing():
     
@@ -71,14 +74,17 @@ class DataPreprocessing():
     
     # Augmentation을 적용시키는 함수이다.
     def aug_fn(self, image, img_size, is_train):
+        data = {"image":image}
+        
         if is_train:
-            data = {"image":image}
             aug_data = transforms(**data)
             aug_img = aug_data["image"]
             aug_img = tf.cast(aug_img/255.0, tf.float32)
             aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
         else:
-            aug_img = tf.cast(image/255.0, tf.float32)
+            aug_data = transforms_val(**data)
+            aug_img = aug_data["image"]
+            aug_img = tf.cast(aug_img/255.0, tf.float32)
             aug_img = tf.image.resize(aug_img, size=[img_size, img_size])
         return aug_img
 
