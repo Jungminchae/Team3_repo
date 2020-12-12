@@ -21,13 +21,14 @@ class DataPreprocessing():
     
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    def __init__(self, tfr_filepath, image_size, batch_size, buffer_size, dataset_size):
+    def __init__(self, tfr_filepath, image_size, batch_size, buffer_size, dataset_size, num_class):
         self.image_size = image_size
         self.batch_size = batch_size
         self.buffer_size = buffer_size
         self.image_shape = (image_size, image_size, 3)
         self.dataset_size = dataset_size
-        
+        self.num_class = num_class
+
         # tfr파일 경로를 받아온다. 
         self.tfr_filepath = tfr_filepath
         
@@ -95,7 +96,7 @@ class DataPreprocessing():
             print(f"process_data else {is_train}")
             image = tf.image.resize(image, (224, 224))
             
-        label = tf.one_hot(label, 30)
+        label = tf.one_hot(label, self.num_class)
         return image, label
     
     # 최종적으로 데이터의 shape을 정의해준다.
@@ -124,7 +125,7 @@ class DataPreprocessing():
         #image = tf.cast(image/255, dtype=tf.float32)
         image = tf.image.resize(image, (224, 224))
 
-        label = tf.one_hot(label, 30)
+        label = tf.one_hot(label, self.num_class)
 
         return image, label
     
